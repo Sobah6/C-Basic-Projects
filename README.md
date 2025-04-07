@@ -1,2 +1,2 @@
-# C-Basic-Projects
+# C and C++ -Basic-Projects
 This repository contains various projects built using C and C++.
