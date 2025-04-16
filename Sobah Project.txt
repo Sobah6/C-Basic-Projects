@@ -1,0 +1,157 @@
+#include<iostream>
+#include<fstream>
+using namespace std;
+
+struct player {
+    int jerseyNumber;
+    char name[30];
+    int goalsScored;
+    void getData();      // get player data from user
+    void displayData(); // display data
+}; 
+
+void player::getData() { // Scope resolution operator
+    cout << "\nEnter Jersey Number: ";
+    cin >> jerseyNumber;
+    cin.ignore(); // ignore the newline char inserted when you press enter
+    cout << "Enter Player Name: ";
+    cin.getline(name, 30);
+    cout << "Enter Goals Scored: ";
+    cin >> goalsScored;
+}
+
+void player::displayData() {
+    cout << "\nJersey Number: " << jerseyNumber << endl;
+    cout << "Player Name: " << name << endl;
+    cout << "Goals Scored: " << goalsScored << endl;
+}
+
+void menu();
+void writeData();
+void readData();
+void displayData();
+void deleteData();
+void updateData();
+
+const int maxSize = 3; // Define the maximum number of players
+int no_of_records = 0;
+player p[maxSize]; // array of players
+ofstream wfile;
+ifstream rfile;
+
+int main() {
+    int choice;
+    while (true) {
+        menu();
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                writeData();
+                break;
+            case 2:
+                readData();
+                break;
+            case 3:
+                displayData();
+                break;
+            case 4:
+                deleteData();
+                break;
+            case 5:
+                updateData();
+                break;
+            case 6:
+                exit(0);
+            default:
+                cout << "Invalid choice! Please try again." << endl;
+                break;
+        }
+    }
+    return 0;
+}
+
+void menu() {
+    cout << "\n===== Sports Management System Menu =====" << endl;
+    cout << "1. Add Player Data" << endl;
+    cout << "2. Read Player Data" << endl;
+    cout << "3. Display Player Data" << endl;
+    cout << "4. Delete Player Data" << endl;
+    cout << "5. Update Player Data" << endl;
+    cout << "6. Exit" << endl;
+    cout << "Enter your choice: ";
+}
+
+void writeData() {
+    wfile.open("players.txt"); // open file for writing
+    for (int i = 0; i < maxSize; i++) {
+        p[i].getData();
+        wfile.write((char *)&p[i], sizeof(p[i]));    //(char*)&p - type casting &p into a char pointer.
+    }
+    wfile.close(); // close the file
+}
+
+void readData() {
+    no_of_records = 0;
+    rfile.open("players.txt"); // open file for reading
+    for (int i = 0; i < maxSize; i++) {
+        rfile.read((char *)&p[i], sizeof(p[i])); // read an object from a file
+        no_of_records++;
+    }
+    rfile.close(); // close the file
+}
+
+void displayData() {
+    for (int i = 0; i < no_of_records; i++) {
+        p[i].displayData();
+    }
+}
+
+void deleteData() {
+    int jerseyNumber, count = 0;
+    wfile.open("players.txt");
+    cout << "Enter player's Jersey Number to delete: ";
+    cin >> jerseyNumber;
+    for (int i = 0; i < maxSize; i++) {
+        if (p[i].jerseyNumber != jerseyNumber) {
+            wfile.write((char *)&p[i], sizeof(p[i]));
+            count++;
+        }
+    }
+    wfile.close();
+    no_of_records = count;
+    readData();
+}
+
+void updateData() {
+    int jerseyNumber, ch, count = 0;
+    char name[30];
+    wfile.open("players.txt");
+    cout << "Enter player's Jersey Number to update: ";
+    cin >> jerseyNumber;
+    for (int i = 0; i < maxSize; i++) {
+        if (p[i].jerseyNumber != jerseyNumber) {
+            wfile.write((char *)&p[i], sizeof(p[i]));
+        } else {
+            cout << "Press 1 to update name" << endl;
+            cout << "Press 2 to update goals scored" << endl;
+            cin >> ch;
+            switch (ch) {
+                case 1:
+                    cout << "Enter new name: ";
+                    cin.ignore(); // ignore the newline char inserted when you press enter
+                    cin.getline(p[i].name, 30);
+                    break;
+                case 2:
+                    cout << "Enter new goals scored: ";
+                    cin >> p[i].goalsScored;
+                    break;
+                default:
+                    cout << "Invalid choice! No update performed." << endl;
+                    break;
+            }
+            wfile.write((char *)&p[i], sizeof(p[i]));
+        }
+    }
+    wfile.close();
+    readData();
+}
